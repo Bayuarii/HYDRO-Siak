@@ -110,9 +110,74 @@ class MapController {
     }
 }
 
+class ImageCompareSlider {
+    constructor(containerId, overlayId, handleId, innerImgId) {
+        this.container = document.getElementById(containerId);
+        this.overlay = document.getElementById(overlayId);
+        this.handle = document.getElementById(handleId);
+        this.innerImg = document.getElementById(innerImgId);
+        this.isDragging = false;
+
+        if (this.container && this.overlay && this.handle && this.innerImg) {
+            this.init();
+        }
+    }
+
+    init() {
+        this.updateInnerImgWidth = this.updateInnerImgWidth.bind(this);
+        this.slide = this.slide.bind(this);
+        
+        window.addEventListener('resize', this.updateInnerImgWidth);
+        setTimeout(this.updateInnerImgWidth, 100);
+
+        this.container.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            this.slide(e);
+        });
+        this.container.addEventListener('touchstart', (e) => {
+            this.isDragging = true;
+            this.slide(e);
+        }, { passive: true });
+
+        window.addEventListener('mouseup', () => this.isDragging = false);
+        window.addEventListener('touchend', () => this.isDragging = false);
+
+        window.addEventListener('mousemove', this.slide);
+        window.addEventListener('touchmove', this.slide, { passive: true });
+    }
+
+    updateInnerImgWidth() {
+        if(this.container && this.innerImg) {
+            this.innerImg.style.width = this.container.offsetWidth + 'px';
+        }
+    }
+
+    slide(e) {
+        if (!this.isDragging) return;
+        
+        let clientX;
+        if (e.type.includes('mouse')) {
+            clientX = e.clientX;
+        } else if (e.type.includes('touch')) {
+            clientX = e.touches[0].clientX;
+        }
+        
+        const rect = this.container.getBoundingClientRect();
+        let x = clientX - rect.left;
+        
+        if (x < 0) x = 0;
+        if (x > rect.width) x = rect.width;
+        
+        const percentage = (x / rect.width) * 100;
+        this.overlay.style.width = percentage + '%';
+        this.handle.style.left = percentage + '%';
+    }
+}
+
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Navbar();
     new Slider('siak-slider', 3000); // 3000ms = 3 seconds
     new MapController();
+    new ImageCompareSlider('image-compare-container', 'image-compare-overlay', 'image-compare-handle', 'image-compare-img');
 });
