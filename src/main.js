@@ -174,10 +174,40 @@ class ImageCompareSlider {
     }
 }
 
+class LegendTooltipController {
+    constructor() {
+        this.btn = document.getElementById('legend-toggle-btn');
+        this.tooltip = document.getElementById('legend-tooltip');
+        this.isPinned = false;
+
+        if (this.btn && this.tooltip) {
+            this.init();
+        }
+    }
+
+    init() {
+        this.btn.addEventListener('click', () => {
+            this.isPinned = !this.isPinned;
+            if (this.isPinned) {
+                // Force tooltip to stay visible overriding hover classes
+                this.tooltip.style.opacity = '1';
+                this.tooltip.style.visibility = 'visible';
+                this.tooltip.style.transform = 'translateY(0)';
+            } else {
+                // Remove inline styles to return to normal group-hover behavior
+                this.tooltip.style.opacity = '';
+                this.tooltip.style.visibility = '';
+                this.tooltip.style.transform = '';
+            }
+        });
+    }
+}
+
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Navbar();
     new Slider('siak-slider', 3000); // 3000ms = 3 seconds
     new MapController();
     new ImageCompareSlider('image-compare-container', 'image-compare-overlay', 'image-compare-handle', 'image-compare-img');
+    new LegendTooltipController();
 });
